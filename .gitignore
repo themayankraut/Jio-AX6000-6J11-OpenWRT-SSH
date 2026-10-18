@@ -1,0 +1,19 @@
+# Binaries and archives
+*.ubi
+*.bin
+*.itb
+*.img
+*.zip
+*.tar.gz
+
+# Firmware folder contents (keep folder in git with .gitkeep)
+firmware/*
+!firmware/.gitkeep
+
+# OS / Editor temporary files
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.vscode/
+.idea/

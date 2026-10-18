@@ -1,0 +1,2 @@
+# Firmware binaries are distributed via GitHub Releases.
+# Download the factory.ubi and sysupgrade.bin images from the Releases tab and place them in the root directory alongside Jio_6J11_OpenWrt_Flasher.bat and flash.sh.

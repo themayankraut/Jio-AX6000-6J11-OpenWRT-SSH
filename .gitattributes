@@ -1,0 +1,5 @@
+# Force Windows batch files to always have CRLF line endings
+*.bat text eol=crlf
+
+# Force shell scripts to always have LF line endings
+*.sh text eol=lf
