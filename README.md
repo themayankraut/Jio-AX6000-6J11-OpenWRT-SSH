@@ -99,7 +99,7 @@ After a successful install:
 | Feature | Details |
 | :--- | :--- |
 | **OS** | OpenWrt (with LuCI WebUI) |
-| **Usable Storage** | ~171 MB (for packages, configs, etc.) |
+| **Usable Storage** | ~174 MB (for packages, configs, etc.) |
 | **IP Address** | `192.168.1.1` |
 | **WebUI** | `http://192.168.1.1` (LuCI) |
 | **SSH** | `ssh root@192.168.1.1` |
@@ -339,15 +339,16 @@ passwd
 ### Disk Space Breakdown
 
 ```
-Filesystem          Size      Used  Available  Use%  Mounted on
-/dev/ubi0_2        176.3M    84.0K    171.5M    0%  /overlay
+Filesystem                Size      Used Available Use% Mounted on
+/dev/ubi0_2             179.1M    268.0K    174.1M   0% /overlay
 ```
 
 | Volume | Name | Size | Purpose |
 | :--- | :--- | :--- | :--- |
-| `ubi0_0` | `kernel` | 5.4 MiB | OpenWrt Linux Kernel |
-| `ubi0_1` | `rootfs` | 14.2 MiB | Read-only squashfs system (`/rom`) |
-| `ubi0_2` | `rootfs_data` | 192.9 MiB | Writable overlay (`/overlay` — ~171 MB usable) |
+| `ubi0_0` | `kernel` | 4.9 MiB | OpenWrt Linux Kernel |
+| `ubi0_1` | `rootfs` | 11.5 MiB | Read-only squashfs system (`/rom`) |
+| `ubi0_2` | `rootfs_data` | 195.9 MiB | Writable overlay (`/overlay` — ~174 MB usable) |
+| `ubi0_127`| `provisioning`| 248.0 KiB | UBI Provisioning metadata |
 | **Total** | `ubi0` | **217.9 MiB** | Both stock slots combined into one |
 
 ---

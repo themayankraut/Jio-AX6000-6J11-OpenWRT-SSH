@@ -247,7 +247,7 @@ After (sysupgrade):
   ┌──────────────────────────────┐
   │         Single "ubi"         │   ← One ~225MB partition
   │  kernel │ rootfs │ rootfs_data│
-  │  5.4MB  │ 14.2MB│   192.9MB  │
+  │  4.9MB  │ 11.5MB│   195.9MB  │
   └──────────────────────────────┘
 ```
 
