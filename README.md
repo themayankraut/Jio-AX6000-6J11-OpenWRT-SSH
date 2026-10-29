@@ -5,7 +5,11 @@
 ![OpenWrt](https://img.shields.io/badge/OpenWrt-25.x-blue)
 ![Method](https://img.shields.io/badge/Method-SSH%20Only-green)
 ![Device](https://img.shields.io/badge/Device-Jio%20JIDU6J11-orange)
-![License](https://img.shields.io/badge/License-GPLv2-red)
+![License](https://img.shields.io/badge/License-GPL--3.0-blue)
+
+> [!WARNING]
+> **COPYRIGHT & PLAGIARISM NOTICE**  
+> Scripts and flashing procedures published by the YouTube channel THE_DIY_DADDY (youtube.com/@the_diy_daddy) in archive 6j11_diy_daddy_autoflash.zip were copied, renamed, and redistributed from this repository without authorization. An official YouTube DMCA copyright complaint has been filed. The genuine, author-maintained open-source repository and firmware files are hosted exclusively here under the GNU General Public License v3.0.
 
 ---
 
@@ -398,4 +402,4 @@ See **[docs/BUILDING_FIRMWARE.md](docs/BUILDING_FIRMWARE.md)** for compiling fro
 
 ## License
 
-This project is licensed under the **GNU General Public License v2.0** — see [LICENSE](LICENSE) for details.
+This project is licensed under the **GNU General Public License v3.0** — see [LICENSE](LICENSE) for details.
