@@ -10,6 +10,8 @@
 > [!WARNING]
 > **COPYRIGHT & PLAGIARISM NOTICE**  
 > Scripts and flashing procedures published by the YouTube channel THE_DIY_DADDY (youtube.com/@the_diy_daddy) in archive 6j11_diy_daddy_autoflash.zip were copied, renamed, and redistributed from this repository without authorization. An official YouTube DMCA copyright complaint has been filed. The genuine, author-maintained open-source repository and firmware files are hosted exclusively here under the GNU General Public License v3.0.
+> 
+> 👉 **Read the complete forensic analysis and verified chat proof here: [EXPOSE_THE_DIY_DADDY.md](EXPOSE_THE_DIY_DADDY.md)**
 
 ---
 
