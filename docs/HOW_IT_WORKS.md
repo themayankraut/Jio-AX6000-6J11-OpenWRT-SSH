@@ -134,7 +134,6 @@ vol_id=0
 vol_name=kernel
 vol_type=dynamic
 vol_alignment=1
-vol_flags=autoresize
 ```
 
 ```bash
@@ -185,13 +184,13 @@ After flashing, we need to tell U-Boot to boot from the newly flashed idle slot.
 ```bash
 fw_setenv mtdids 'nand0=nand0'
 fw_setenv mtdparts "mtdparts=nand0:${SIZ}@${OFF}(${IDLE})"
-fw_setenv bootcmd "ubi detach; ubi part ${IDLE}; ubi read 0x46000000 kernel; bootm 0x46000000"
+fw_setenv bootcmd "ubi detach; ubi part ${IDLE}; ubi read 0x44000000 kernel; bootm 0x44000000"
 ```
 
 This tells U-Boot:
 1. **`mtdids`**: Map NAND device `nand0` to the identifier `nand0`
 2. **`mtdparts`**: Define a partition named after the idle slot at the correct offset and size
-3. **`bootcmd`**: On boot, attach the UBI partition, read the `kernel` volume into RAM at `0x46000000`, and boot it
+3. **`bootcmd`**: On boot, attach the UBI partition, read the `kernel` volume into RAM at `0x44000000`, and boot it
 
 ---
 
@@ -272,7 +271,6 @@ When U-Boot loads the kernel into RAM for booting:
 
 | Address | Usage |
 | :--- | :--- |
-| `0x44000000` | Permanent OpenWrt kernel load address (used after sysupgrade) |
-| `0x46000000` | Initramfs kernel load address (used during factory boot) |
+| `0x44000000` | Kernel load address (used by both initramfs factory boot and permanent OpenWrt) |
 
-The initramfs uses `0x46000000` instead of `0x44000000` to avoid overlapping with the kernel decompression space. The ~20 MB initramfs image at `0x44000000` would collide with where the kernel tries to decompress itself.
+The kernel FIT image is loaded at `0x44000000`. Notice that `vol_flags=autoresize` must NOT be set on the factory UBI kernel volume: without autoresize, U-Boot reads only the actual ~6 MiB kernel FIT image into RAM at `0x44000000`, leaving ample headroom for kernel decompression and avoiding clobbering upper DRAM regions.

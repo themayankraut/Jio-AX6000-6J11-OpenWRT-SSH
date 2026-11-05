@@ -39,7 +39,7 @@ ubiformat "/dev/$DEV" -y -f "$FACTORY"
 echo "[+] Updating U-Boot environment..."
 fw_setenv mtdids 'nand0=nand0'
 fw_setenv mtdparts "mtdparts=nand0:${SIZ}@${OFF}(${IDLE})"
-fw_setenv bootcmd "ubi detach; ubi part ${IDLE}; ubi read 0x46000000 kernel; bootm 0x46000000"
+fw_setenv bootcmd "ubi detach; ubi part ${IDLE}; ubi read 0x44000000 kernel; bootm 0x44000000"
 
 echo "[+] SUCCESS! Rebooting in 3 seconds..."
 sleep 3
