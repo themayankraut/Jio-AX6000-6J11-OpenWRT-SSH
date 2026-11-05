@@ -118,7 +118,6 @@ vol_id=0
 vol_name=kernel
 vol_type=dynamic
 vol_alignment=1
-vol_flags=autoresize
 ```
 
 ### Run ubinize:
