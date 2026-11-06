@@ -33,7 +33,8 @@
 ## Table of Contents
 
 - [About](#about)
-- [Firmware Variants: Standard vs Small Buffers](#firmware-variants-standard-vs-small-buffers)
+- [Firmware: Factory Image & Sysupgrade Variants](#firmware-factory-image--sysupgrade-variants)
+- [Installing Extra Packages (apk)](#installing-extra-packages-apk)
 - [What You Get](#what-you-get)
 - [Prerequisites](#prerequisites)
 - [Step 1: Enable SSH on Stock Firmware](#step-1-enable-ssh-on-stock-firmware)
@@ -97,6 +98,34 @@ We provide firmware in the [**Releases**](../../releases) tab. You need **two fi
 > 💡 **Recommendation:** Unless you have a specific need to maximize free RAM for heavy applications, pick the **Standard** build.
 
 ---
+
+## Installing Extra Packages (apk)
+
+Recent OpenWrt development snapshots (25.x) use **`apk`** (Alpine Package Keeper) as the package manager instead of legacy `opkg`.
+
+Because this release runs a customized Qualcomm kernel (`6.18.60`), kernel modules (`kmod-*`) require an exact kernel hash match (*vermagic*). Installing kernel-dependent packages from upstream snapshot mirrors (`downloads.openwrt.org`) will fail with dependency mismatch errors.
+
+To install extra packages, use the offline package archive **`packages-ipq95xx-6.18.60.zip`** provided in the [Releases](../../releases) section:
+
+1. **Download and Extract:**
+   Download `packages-ipq95xx-6.18.60.zip` and extract the `.apk` packages on your PC.
+
+2. **Upload Package to Router:**
+   ```bash
+   scp -O <package-name>.apk root@192.168.1.1:/tmp/
+   ```
+
+3. **Install Package:**
+   ```bash
+   ssh root@192.168.1.1 "apk add --allow-untrusted /tmp/<package-name>.apk"
+   ```
+
+> [!TIP]
+> Architecture-independent packages (such as LuCI web interface modules, Python scripts, themes, and CLI utilities) that do not depend on `kmod-*` can also be installed directly over an active internet connection:
+> ```bash
+> apk update
+> apk add <package-name>
+> ```
 
 ## What You Get
 

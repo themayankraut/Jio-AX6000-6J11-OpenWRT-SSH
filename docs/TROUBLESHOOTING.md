@@ -197,7 +197,24 @@ ubiformat /dev/mtd<NUMBER> -y -f /tmp/*factory.ubi
 
 ---
 
-### `opkg install` fails with "No space left on device"
+### `apk add` fails with kernel dependency error
+
+**Error:**
+```
+satisfies_all_dependencies: Cannot satisfy the following dependencies for ...: kernel (= 6.18.60-...)
+```
+
+**Cause:** This build runs custom kernel `6.18.60`. Official OpenWrt snapshot mirrors compile packages against their current daily kernel git hash (*vermagic*). Kernel modules (`kmod-*`) downloaded from standard online repositories will fail verification.
+
+**Fix:** Use the offline package archive `packages-ipq95xx-6.18.60.zip` from our GitHub Releases page:
+```bash
+scp -O <package-name>.apk root@192.168.1.1:/tmp/
+ssh root@192.168.1.1 "apk add --allow-untrusted /tmp/<package-name>.apk"
+```
+
+---
+
+### `apk add` fails with "No space left on device"
 
 **Cause:** The overlay filesystem is full.
 
@@ -208,7 +225,7 @@ df -h /overlay
 
 **Fix:** Remove unused packages:
 ```bash
-opkg remove <package-name>
+apk del <package-name>
 ```
 
 ---
